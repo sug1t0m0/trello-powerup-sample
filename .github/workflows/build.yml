@@ -1,0 +1,36 @@
+name: Build
+on:
+  push:
+    branches: [ main ]
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      PORT: 3000
+      POWERUP_NAME: My Power-Up
+      POWERUP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+      CONTEXT_PATH: /${{ github.event.repository.name }}
+      POWERUP_ID: UNSPECIFIED
+      POWERUP_APP_KEY: UNSPECIFIED
+      OPTRO_API_KEY: DISABLED
+      OPTRO_LICENSE_TYPE: UNSPECIFIED
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - name: Install Packages
+        run: yarn install --production=false
+      - name: Build GitHub Pages
+        run: yarn build
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist
+          CLEAN: true
